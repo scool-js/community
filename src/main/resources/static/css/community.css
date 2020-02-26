@@ -1,0 +1,21 @@
+body{
+    background: #efefef;
+}
+.main{
+    margin: 30px;
+    background: white;
+}
+
+.float-right{
+    float: right;
+}
+
+.text-desc{
+    font-size: 12px;
+    font-weight: normal;
+    color: #999;
+}
+
+.profile .section{
+    margin-top: 15px;
+}
