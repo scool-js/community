@@ -2,9 +2,9 @@ package com.hyiy.cummunity.controller;
 
 import com.hyiy.cummunity.dto.AccessTokenDTO;
 import com.hyiy.cummunity.dto.GithubUserDTO;
-import com.hyiy.cummunity.mapper.UserMapper;
 import com.hyiy.cummunity.model.User;
 import com.hyiy.cummunity.provider.GithubProvider;
+import com.hyiy.cummunity.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -30,7 +30,7 @@ public class AuthorizeController {
     @Value("${github.client.redirect_uri}")
     private String clientRedirectUri;
     @Autowired
-    private UserMapper userMapper;
+    private UserService userService;
 
     @GetMapping("/callback")
     public String callback(@RequestParam(name="code")String code,
@@ -52,16 +52,25 @@ public class AuthorizeController {
             user.setToken(token);
             user.setName(githubUserDTO.getName());
             user.setAccountId(String.valueOf(githubUserDTO.getId()));
-            user.setGmtCreate(System.currentTimeMillis());
-            user.setGmtModified(user.getGmtCreate());
-            user.setAvatarUrl(githubUserDTO.getAvatarUrl());
-            userMapper.insert(user);
-            response.addCookie(new Cookie("token", token));
 
+            user.setAvatarUrl(githubUserDTO.getAvatarUrl());
+            userService.createOrUpdate(user);
+            response.addCookie(new Cookie("token", token));
         }
         else {
             //登陆失败，重新登陆
         }
         return  "redirect:/";
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpServletRequest request,
+                         HttpServletResponse response){
+        request.getSession().removeAttribute("user");
+        Cookie token = new Cookie("token", null);
+        token.setMaxAge(0);
+        response.addCookie(token);
+
+        return "redirect:/";
     }
 }
