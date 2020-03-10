@@ -23,6 +23,7 @@
             </form>
             <ul class="nav navbar-nav navbar-right">
                 <li th:if="${session.user!=null}"><a href="/publish">发布</a> </li>
+                <li><a href="/profile/replies">通知 <span class="badge" th:text="${session.unreadMessage}">42</span></a></li>
                 <li class="dropdown" >
                     <a href="#" class="dropdown-toggle" th:if="${session.user!=null}" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" >
                         <span th:text="${session.user.getName()}" ></span>

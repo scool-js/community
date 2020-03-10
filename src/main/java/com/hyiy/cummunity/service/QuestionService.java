@@ -15,9 +15,11 @@ import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class QuestionService {
@@ -40,7 +42,9 @@ public class QuestionService {
         if (page<1)
             page = 1;
         Integer offset = size*(page-1);
-        List<Question> questions = questionMapper.selectByExampleWithRowbounds(new QuestionExample(),new RowBounds(offset,size));
+        QuestionExample example1 = new QuestionExample();
+        example1.setOrderByClause("gmt_create desc");
+        List<Question> questions = questionMapper.selectByExampleWithRowbounds(example1,new RowBounds(offset,size));
         List<QuestionDTO> questionDTOS = new ArrayList<>();
 
         for(Question question:questions){
@@ -52,12 +56,12 @@ public class QuestionService {
             questionDTO.setUser(user.get(0));
             questionDTOS.add(questionDTO);
         }
-        pageDto.setQuestions(questionDTOS);
+        pageDto.setData(questionDTOS);
         pageDto.setPage(page);
         return pageDto;
     }
 
-    public PageDto list(Integer userId,Integer page, Integer size){
+    public PageDto list(Long userId,Integer page, Integer size){
         PageDto pageDto = new PageDto();
         QuestionExample example1 = new QuestionExample();
         example1.createCriteria().andCreatorEqualTo(userId);
@@ -84,15 +88,15 @@ public class QuestionService {
             questionDTO.setUser(user.get(0));
             questionDTOS.add(questionDTO);
         }
-        pageDto.setQuestions(questionDTOS);
+        pageDto.setData(questionDTOS);
         pageDto.setPage(page);
         return pageDto;
     }
 
-    public QuestionDTO getById(Integer id) {
+    public QuestionDTO getById(Long id) {
         Question question = questionMapper.selectByPrimaryKey(id);
         if(question==null){
-            throw  new CustomizeException(CustomizeErrorCode.QUESTION_NOTE_FOUND);
+            throw new CustomizeException(CustomizeErrorCode.QUESTION_NOTE_FOUND);
         }
         QuestionDTO questionDTO = new QuestionDTO();
         BeanUtils.copyProperties(question, questionDTO);
@@ -105,6 +109,11 @@ public class QuestionService {
 
     public void createOrUpdate(Question question) {
         if(question.getId()==null){
+            question.setGmtCreate(System.currentTimeMillis());
+            question.setGmtModified(question.getGmtCreate());
+            question.setViewCount(0);
+            question.setLikeCount(0);
+            question.setCommentCount(0);
             questionMapper.insert(question);
         }
         else {
@@ -124,10 +133,27 @@ public class QuestionService {
 
     }
 
-    public void incView(Integer id) {
+    public void incView(Long id) {
         Question record = new Question();
         record.setId(id);
         record.setViewCount(1);
         questionExtMapper.incView(record);
+    }
+
+    public List<QuestionDTO> selectRelated(QuestionDTO questionDTO) {
+        if(StringUtils.isEmpty(questionDTO.getTag())){
+            return  new ArrayList<>();
+        }
+        String str = StringUtils.replace(questionDTO.getTag(),",","|");
+        Question question = new Question();
+        question.setId(questionDTO.getId());
+        question.setTag(str);
+        List<Question> questions = questionExtMapper.selectRelated(question);
+        List<QuestionDTO> questionDTOS =  questions.stream().map(question1 -> {
+            QuestionDTO questionDTO1 = new QuestionDTO();
+            BeanUtils.copyProperties(question1, questionDTO1);
+            return questionDTO1;
+        }).collect(Collectors.toList());
+        return questionDTOS;
     }
 }

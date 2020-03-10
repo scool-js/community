@@ -19,6 +19,7 @@ public class GithubProvider {
             RequestBody body = RequestBody.create(JSON.toJSONString(accessTokenDTO),mediaType);
             Request request = new Request.Builder()
                     .url("https://github.com/login/oauth/access_token")
+                    .addHeader("Connection", "keep-alive")
                     .post(body)
                     .build();
             try (Response response = client.newCall(request).execute()) {
