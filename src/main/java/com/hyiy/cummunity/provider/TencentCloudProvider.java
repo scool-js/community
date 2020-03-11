@@ -23,13 +23,6 @@ import java.util.UUID;
 
 @Component
 public class TencentCloudProvider {
-//    @Value("${tencent.secretId}")
-    private String secretId = "AKIDEFArIW1BcojOddpgJflbjbDYcRzIcr8A";
-//    @Value("${tencent.SecretKey}")
-    private String secretKey = "vaHjvrWv62incATWorfDUVIq7o9E4dV9";
-    // 指定要上传到的存储桶
-    String bucketName = "community-1258404105";
-
 
 
 
