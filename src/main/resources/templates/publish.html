@@ -6,7 +6,8 @@
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/bootstrap-theme.min.css">
     <link rel="stylesheet" href="/css/community.css">
-
+    <link rel="stylesheet" href="/css/editormd.min.css">
+    <link rel="stylesheet" href="/css/editormd.preview.min.css">
 </head>
 <body>
 <div th:insert="navigation :: nav"></div>
@@ -25,9 +26,9 @@
                     <label for="title">问题标题(简单扼要)</label>
                     <input type="text" class="form-control" id="title" name="title" placeholder="问题标题...." th:value="${title}">
                 </div>
-                <div class="form-group">
+                <div class="form-group" id ="question-editor">
                     <label for="description">问题补充(必填)</label>
-                    <textarea class="form-control" id="description" name="description" placeholder="请详细描述问题...."th:text="${description}" cols="30" rows="10"></textarea>
+                    <textarea class="form-control" style="display:none;" id="description" name="description" placeholder="请详细描述问题...."th:text="${description}" cols="30" rows="10"></textarea>
                 </div>
                 <div class="form-group">
                     <label for="tag-text">添加标签</label>
@@ -72,9 +73,30 @@
             ·选择标签
         </div>
     </div>
+
 </div>
+<div th:insert="~{foot :: foot}"></div>
+
 <script src="/js/jquery.js"></script>
 <script src="/js/community.js" type="application/javascript"></script>
 <script src="/js/bootstrap.min.js" type="application/javascript"></script>
+<script src="/js/editormd.min.js" type="application/javascript"></script>
+<script src="/js/lib/marked.min.js"></script>
+<script src="/js/lib/prettify.min.js"></script>
+<script type="text/javascript">
+    $(function() {
+        var editor = editormd("question-editor", {
+             width  : "100%",
+             height : 350,
+             path   : "/js/lib/",
+             delay  : 0,
+             watch  : false,
+             placeholder : "请输入问题描述",
+             imageUpload    : true,
+             imageFormats   : ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+             imageUploadURL : "/file/upload",
+        });
+    });
+</script>
 </body>
 </html>

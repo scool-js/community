@@ -2,6 +2,7 @@ package com.hyiy.cummunity.service;
 
 import com.hyiy.cummunity.dto.PageDto;
 import com.hyiy.cummunity.dto.QuestionDTO;
+import com.hyiy.cummunity.dto.QuestionQueryDTO;
 import com.hyiy.cummunity.exception.CustomizeErrorCode;
 import com.hyiy.cummunity.exception.CustomizeException;
 import com.hyiy.cummunity.mapper.QuestionExtMapper;
@@ -11,13 +12,13 @@ import com.hyiy.cummunity.model.Question;
 import com.hyiy.cummunity.model.QuestionExample;
 import com.hyiy.cummunity.model.User;
 import com.hyiy.cummunity.model.UserExample;
-import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,9 +32,16 @@ public class QuestionService {
     UserMapper userMapper;
     @Autowired
     private QuestionExtMapper questionExtMapper;
-    public PageDto list(Integer page, Integer size) {
+    public PageDto list(String search ,Integer page, Integer size) {
+        if(!StringUtils.isEmpty(search)){
+            String[] tags = search.split(" ");
+            search = Arrays.stream(tags).collect(Collectors.joining("|"));
+        }
+
         PageDto pageDto = new PageDto();
-        Integer totalCount = (int)questionMapper.countByExample(new QuestionExample());
+        QuestionQueryDTO questionQueryDTO = new QuestionQueryDTO();
+        questionQueryDTO.setSearch(search);
+        Integer totalCount = questionExtMapper.countBySearch(questionQueryDTO);
         pageDto.setPages(totalCount,page,size);
 
         if(page>pageDto.getPageCount()){
@@ -42,9 +50,9 @@ public class QuestionService {
         if (page<1)
             page = 1;
         Integer offset = size*(page-1);
-        QuestionExample example1 = new QuestionExample();
-        example1.setOrderByClause("gmt_create desc");
-        List<Question> questions = questionMapper.selectByExampleWithRowbounds(example1,new RowBounds(offset,size));
+        questionQueryDTO.setSize(size);
+        questionQueryDTO.setPage(offset);
+        List<Question> questions = questionExtMapper.selectBySearch(questionQueryDTO);
         List<QuestionDTO> questionDTOS = new ArrayList<>();
 
         for(Question question:questions){

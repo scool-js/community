@@ -47,20 +47,20 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#"th:href="@{/(page=${pages.page}-1)}" th:if="${pages.showPrevious}" aria-label="Previous">
+                        <a href="#"th:href="@{/(page=${pages.page}-1,search=${search})}" th:if="${pages.showPrevious}" aria-label="Previous">
                             <span aria-hidden="true">&lt;</span>
                         </a>
                     </li>
                     <li th:each="page: ${pages.getPages()}" th:class="${page == pages.page}?'active':''">
-                        <a href="/" th:href="@{/(page=${page})}" th:text="${page}" ></a>
+                        <a href="/" th:href="@{/(page=${page},search=${search})}" th:text="${page}" ></a>
                     </li>
                     <li th:if="${pages.showNext}">
-                        <a href="#" th:href="@{/(page=${pages.page+1})}" aria-label="Next">
+                        <a href="#" th:href="@{/(page=${pages.page+1},search=${search})}" aria-label="Next">
                             <span aria-hidden="true">&gt;</span>
                         </a>
                     </li>
                     <li th:if="${pages.showEndPage}">
-                        <a th:href="@{/(page=${pages.pageCount})}"    href="/?page=1" aria-label="End">
+                        <a th:href="@{/(page=${pages.pageCount},search=${search})}"    href="/?page=1" aria-label="End">
                             <span aria-hidden="true">&gt;&gt;</span>
                         </a>
                     </li>
@@ -73,6 +73,7 @@
         </div>
     </div>
 </div>
+<div th:insert="~{foot :: foot}"></div>
 <script src="/js/jquery.js"></script>
 <script src="js/bootstrap.min.js" type="application/javascript"></script>
 <script type="application/javascript">
